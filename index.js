@@ -21,12 +21,22 @@ async function run() {
     try {
       await client.connect();
       const toolCollection = client.db("energy-power").collection("tools");
+      const reviewCollection = client.db("energy-power").collection("reviews");
 
-
+//get all tools
       app.get('/tools', async(req,res)=>{
         const query = {};
-        const tools = await toolCollection.findOne(query);
+        const cursor = toolCollection.find(query);
+        const tools = await cursor.toArray();
         res.send(tools);
+      })
+
+//get all reviews
+      app.get('/reviews', async(req,res)=>{
+        const query = {};
+        const cursor = reviewCollection.find(query);
+        const reviews = await cursor.toArray();
+        res.send(reviews);
       })
       
      
