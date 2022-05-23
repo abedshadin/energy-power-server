@@ -36,9 +36,9 @@ async function run() {
     });
     app.put("/user/:email", async (req, res) => {
       const email = req.params.email;
-     
+
       const user = req.body;
-      console.log(user);
+    
       const filter = { email: email };
       const options = { upsert: true };
       const updateDoc = {
@@ -47,26 +47,21 @@ async function run() {
       const result = await userCollection.updateOne(filter, updateDoc, options);
       res.send(result);
     });
-
-    app.put('/user/admin/:email',async(req,res)=>{
+    app.get("/admin/:email", async (req, res) => {
       const email = req.params.email;
-      const filter = {email:email};
-      const requester = req.body;
-      
-      const requestAccount = await userCollection.findOne({email: requester});
-      if(requestAccount.role == 'admin'){
-
-        const updateDoc = {
-          $set:{role:'admin'},
-        }
-        const result = await userCollection.updateOne(filter,updateDoc);
-        res.send(result);
+      const user = await userCollection.findOne({ email: email });
+      const isAdmin = user.role === "admin";
+      res.send({ admin: isAdmin });
+    });
+    app.put("/user/admin/:email", async (req, res) => {
+      const email = req.params.email;
+      const filter = { email: email };
+      const updateDoc = {
+        $set: { role: "admin" },
       }
-      else{
-        res.status(403).send({message:'forbidden'});
-      }
-  
-    })
+      const result = await userCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
 
     //get single tool details
     app.get("/tools/:id", async (req, res) => {
