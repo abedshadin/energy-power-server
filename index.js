@@ -30,6 +30,13 @@ async function run() {
       const tools = await cursor.toArray();
       res.send(tools);
     });
+
+    app.post("/tools", async (req, res) => {
+      const newOrder = req.body;
+      const result = await toolCollection.insertOne(newOrder);
+      res.send(result);
+    });
+
     app.get("/user", async (req, res) => {
       const query = {};
       const cursor = userCollection.find(query);
