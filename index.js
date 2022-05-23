@@ -21,8 +21,6 @@ async function run() {
     const orderedCollection = client.db("energy-power").collection("ordered");
     const userCollection = client.db("energy-power").collection("users");
 
-
-   
     //get all tools
     app.get("/tools", async (req, res) => {
       const query = {};
@@ -30,24 +28,26 @@ async function run() {
       const tools = await cursor.toArray();
       res.send(tools);
     });
-
+    //post a item
     app.post("/tools", async (req, res) => {
       const newOrder = req.body;
       const result = await toolCollection.insertOne(newOrder);
       res.send(result);
     });
-
+    //get all user
     app.get("/user", async (req, res) => {
       const query = {};
       const cursor = userCollection.find(query);
       const users = await cursor.toArray();
       res.send(users);
     });
+
+    //add user info first login
     app.put("/user/:email", async (req, res) => {
       const email = req.params.email;
 
       const user = req.body;
-    
+
       const filter = { email: email };
       const options = { upsert: true };
       const updateDoc = {
@@ -61,16 +61,11 @@ async function run() {
       const email = req.query.email;
       console.log(email);
 
-      
-    
       const query = { email: email };
-     
-      
+
       const result = await userCollection.findOne(query);
       res.send(result);
     });
-
-
 
     app.get("/admin/:email", async (req, res) => {
       const email = req.params.email;
@@ -83,7 +78,7 @@ async function run() {
       const filter = { email: email };
       const updateDoc = {
         $set: { role: "admin" },
-      }
+      };
       const result = await userCollection.updateOne(filter, updateDoc);
       res.send(result);
     });
@@ -147,13 +142,12 @@ async function run() {
       res.send(reviews);
     });
 
-
-    app.get('/profile/:email', async(req, res) =>{
+    app.get("/profile/:email", async (req, res) => {
       const email = req.params.email;
-      const query={email: email};
+      const query = { email: email };
       const inventory = await userCollection.findOne(query);
       res.send(inventory);
-  });
+    });
   } finally {
   }
 }
