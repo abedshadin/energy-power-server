@@ -18,6 +18,7 @@ async function run() {
     await client.connect();
     const toolCollection = client.db("energy-power").collection("tools");
     const reviewCollection = client.db("energy-power").collection("reviews");
+    const orderedCollection = client.db("energy-power").collection("ordered");
 
     //get all tools
     app.get("/tools", async (req, res) => {
@@ -34,6 +35,55 @@ async function run() {
       const tools = await toolCollection.findOne(query);
       res.send(tools);
     });
+
+
+    //update single item
+    app.put("/tools/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const options = {upsert: true}
+      const doc = {
+        $set: req.body
+    }
+      const tools = await toolCollection.updateOne(query, doc, options);
+      res.send(tools);
+      console.log(doc);
+
+    });
+
+    // post ordered items
+    app.post('/ordered', async(req, res) =>{
+      const newOrder = req.body;
+      const result = await orderedCollection.insertOne(newOrder);
+      res.send(result);
+  });
+   // post review items
+   app.post('/reviews', async(req, res) =>{
+    const newOrder = req.body;
+    const result = await reviewCollection.insertOne(newOrder);
+    res.send(result);
+});
+
+  //myorders
+  app.get('/myorders', async (req, res) => {
+    const email = req.query.email;
+    const query = {user_email: email};
+    const cursor = orderedCollection.find(query);
+    const orders = await cursor.toArray();
+    res.send(orders);
+});
+
+//delete order
+app.delete('/myorders/:id', async(req, res) =>{
+  const id = req.params.id;
+  const query = {_id: ObjectId(id)};
+  const result = await orderedCollection.deleteOne(query);
+  res.send(result);
+});
+
+
+
+
     //get all reviews
     app.get("/reviews", async (req, res) => {
       const query = {};
