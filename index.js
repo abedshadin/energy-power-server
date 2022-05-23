@@ -30,31 +30,42 @@ async function run() {
     });
     app.get("/user", async (req, res) => {
       const query = {};
-      const cursor = toolCollection.find(query);
+      const cursor = userCollection.find(query);
       const users = await cursor.toArray();
       res.send(users);
     });
-    app.put("/user/:id", async (req, res) => {
+    app.put("/user/:email", async (req, res) => {
       const email = req.params.email;
+     
       const user = req.body;
+      console.log(user);
       const filter = { email: email };
-      const option = { upsert: true };
+      const options = { upsert: true };
       const updateDoc = {
         $set: user,
       };
-      const result = await userCollection.updateOne(filter, updateDoc, option);
+      const result = await userCollection.updateOne(filter, updateDoc, options);
       res.send(result);
     });
 
     app.put('/user/admin/:email',async(req,res)=>{
       const email = req.params.email;
       const filter = {email:email};
-  
-      const updateDoc = {
-        $set:{role:'admin'},
+      const requester = req.body;
+      
+      const requestAccount = await userCollection.findOne({email: requester});
+      if(requestAccount.role == 'admin'){
+
+        const updateDoc = {
+          $set:{role:'admin'},
+        }
+        const result = await userCollection.updateOne(filter,updateDoc);
+        res.send(result);
       }
-      const result = await userCollection.updateOne(filter,updateDoc);
-      res.send(result);
+      else{
+        res.status(403).send({message:'forbidden'});
+      }
+  
     })
 
     //get single tool details
