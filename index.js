@@ -21,6 +21,8 @@ async function run() {
     const orderedCollection = client.db("energy-power").collection("ordered");
     const userCollection = client.db("energy-power").collection("users");
 
+
+   
     //get all tools
     app.get("/tools", async (req, res) => {
       const query = {};
@@ -47,6 +49,22 @@ async function run() {
       const result = await userCollection.updateOne(filter, updateDoc, options);
       res.send(result);
     });
+
+    app.get("/user", async (req, res) => {
+      const email = req.query.email;
+      console.log(email);
+
+      
+    
+      const query = { email: email };
+     
+      
+      const result = await userCollection.findOne(query);
+      res.send(result);
+    });
+
+
+
     app.get("/admin/:email", async (req, res) => {
       const email = req.params.email;
       const user = await userCollection.findOne({ email: email });
@@ -121,6 +139,14 @@ async function run() {
       const reviews = await cursor.toArray();
       res.send(reviews);
     });
+
+
+    app.get('/profile/:email', async(req, res) =>{
+      const email = req.params.email;
+      const query={email: email};
+      const inventory = await userCollection.findOne(query);
+      res.send(inventory);
+  });
   } finally {
   }
 }
