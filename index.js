@@ -83,6 +83,19 @@ async function run() {
       res.send(result);
     });
 
+
+    //paid manually
+    app.put("/user/order/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const updateDoc = {
+        $set: { status: "paid" },
+      };
+      const result = await orderedCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+
+
     //get single tool details
     app.get("/tools/:id", async (req, res) => {
       const id = req.params.id;
@@ -110,6 +123,15 @@ async function run() {
       const result = await orderedCollection.insertOne(newOrder);
       res.send(result);
     });
+
+    //get all order
+    app.get("/orders", async (req, res) => {
+     
+      const query = {};
+      const cursor = orderedCollection.find(query);
+      const orders = await cursor.toArray();
+      res.send(orders);
+    });
     // post review items
     app.post("/reviews", async (req, res) => {
       const newOrder = req.body;
@@ -128,6 +150,15 @@ async function run() {
 
     //delete order
     app.delete("/myorders/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await orderedCollection.deleteOne(query);
+      res.send(result);
+    });
+
+
+     //delete admin order
+     app.delete("/allorders/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await orderedCollection.deleteOne(query);
