@@ -89,7 +89,23 @@ async function run() {
       const id = req.params.id;
       const filter = { _id: ObjectId(id) };
       const updateDoc = {
-        $set: { status: "paid" },
+        $set: { status: "paid",
+      ap_status: 'pending',
+      },
+      };
+      const result = await orderedCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+
+
+    //shipped manually
+    app.put("/user/orderShip/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const updateDoc = {
+        $set: { 
+      ap_status: 'shipped',
+      },
       };
       const result = await orderedCollection.updateOne(filter, updateDoc);
       res.send(result);
@@ -150,6 +166,15 @@ async function run() {
 
     //delete order
     app.delete("/myorders/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await orderedCollection.deleteOne(query);
+      res.send(result);
+    });
+
+
+    //delete tools
+    app.delete("/tools/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await orderedCollection.deleteOne(query);
