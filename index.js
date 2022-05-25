@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+
 require("dotenv").config();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const res = require("express/lib/response");
@@ -20,7 +21,7 @@ async function run() {
     const reviewCollection = client.db("energy-power").collection("reviews");
     const orderedCollection = client.db("energy-power").collection("ordered");
     const userCollection = client.db("energy-power").collection("users");
-
+ 
     //get all tools
     app.get("/tools", async (req, res) => {
       const query = {};
@@ -83,34 +84,29 @@ async function run() {
       res.send(result);
     });
 
-
     //paid manually
     app.put("/user/order/:id", async (req, res) => {
       const id = req.params.id;
       const filter = { _id: ObjectId(id) };
       const updateDoc = {
-        $set: { status: "paid",
-      ap_status: 'pending',
-      },
+        $set: { status: "paid", ap_status: "pending" },
       };
       const result = await orderedCollection.updateOne(filter, updateDoc);
       res.send(result);
     });
-
 
     //shipped manually
     app.put("/user/orderShip/:id", async (req, res) => {
       const id = req.params.id;
       const filter = { _id: ObjectId(id) };
       const updateDoc = {
-        $set: { 
-      ap_status: 'shipped',
-      },
+        $set: {
+          ap_status: "shipped",
+        },
       };
       const result = await orderedCollection.updateOne(filter, updateDoc);
       res.send(result);
     });
-
 
     //get single tool details
     app.get("/tools/:id", async (req, res) => {
@@ -142,7 +138,6 @@ async function run() {
 
     //get all order
     app.get("/orders", async (req, res) => {
-     
       const query = {};
       const cursor = orderedCollection.find(query);
       const orders = await cursor.toArray();
@@ -153,6 +148,14 @@ async function run() {
       const newOrder = req.body;
       const result = await reviewCollection.insertOne(newOrder);
       res.send(result);
+    });
+
+    //new pay
+    app.get("/payorder/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const tools = await orderedCollection.findOne(query);
+      res.send(tools);
     });
 
     //myorders
@@ -172,18 +175,16 @@ async function run() {
       res.send(result);
     });
 
-
     //delete tools
     app.delete("/tools/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
-      const result = await orderedCollection.deleteOne(query);
+      const result = await toolCollection.deleteOne(query);
       res.send(result);
     });
 
-
-     //delete admin order
-     app.delete("/allorders/:id", async (req, res) => {
+    //delete admin order
+    app.delete("/allorders/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await orderedCollection.deleteOne(query);
